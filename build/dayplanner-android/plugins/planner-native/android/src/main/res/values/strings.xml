@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pn_widget_today_label">Ежедневник: дела на сегодня</string>
+    <string name="pn_widget_today_desc">Список дел на сегодня с отметками</string>
+    <string name="pn_widget_schedule_label">Ежедневник: расписание</string>
+    <string name="pn_widget_schedule_desc">Таблица занятий на сегодня</string>
+    <string name="pn_widget_week_label">Ежедневник: неделя</string>
+    <string name="pn_widget_week_desc">Обзор занятий и дел на 7 дней</string>
+</resources>

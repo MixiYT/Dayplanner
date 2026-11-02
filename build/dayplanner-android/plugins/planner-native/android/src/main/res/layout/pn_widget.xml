@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pn_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Фон: форма с закруглением, цвет и прозрачность задаются из кода по теме -->
+    <ImageView
+        android:id="@+id/pn_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/pn_widget_bg" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/pn_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pn_sub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="12sp" />
+
+        <TextView android:id="@+id/pn_r0" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r1" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r2" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r3" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r4" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r5" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r6" style="@style/PnRow" />
+        <TextView android:id="@+id/pn_r7" style="@style/PnRow" />
+    </LinearLayout>
+</FrameLayout>

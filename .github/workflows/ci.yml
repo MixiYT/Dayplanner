@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Проверить и протестировать ядро (ПК)
+        run: cargo check -p planner-core --manifest-path build\dayplanner-pc\Cargo.toml
+      - name: Запустить тесты ядра
+        run: cargo test -p planner-core --manifest-path build\dayplanner-pc\Cargo.toml
+    note: >
+      Полная сборка Windows EXE и подписный APK требует локального окружения
+      (JDK 17, Android SDK/NDK, MinGW) — см. build/env.ps1 и README.md. CI
+      проверяет только компиляцию и тесты ядра на ПК.

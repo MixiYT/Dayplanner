@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
+    <application>
+
+        <!-- Срабатывание напоминания по таймеру -->
+        <receiver
+            android:name="app.dayplanner.nativebridge.AlarmReceiver"
+            android:exported="false" />
+
+        <!-- Кнопки «Выполнено», «Пропустить», «Отложить», «Выключить» -->
+        <receiver
+            android:name="app.dayplanner.nativebridge.ActionReceiver"
+            android:exported="false" />
+
+        <!-- После перезагрузки, смены времени или обновления приложения заново ставим будильники -->
+        <receiver
+            android:name="app.dayplanner.nativebridge.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Звук и вибрация будильника -->
+        <service
+            android:name="app.dayplanner.nativebridge.AlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!-- Экран напоминания поверх блокировки -->
+        <activity
+            android:name="app.dayplanner.nativebridge.AlertActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:turnScreenOn="true" />
+
+        <!-- Виджеты рабочего стола -->
+        <receiver
+            android:name="app.dayplanner.nativebridge.TodayWidget"
+            android:exported="true"
+            android:label="@string/pn_widget_today_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pn_widget_today_info" />
+        </receiver>
+        <receiver
+            android:name="app.dayplanner.nativebridge.ScheduleWidget"
+            android:exported="true"
+            android:label="@string/pn_widget_schedule_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pn_widget_schedule_info" />
+        </receiver>
+        <receiver
+            android:name="app.dayplanner.nativebridge.WeekWidget"
+            android:exported="true"
+            android:label="@string/pn_widget_week_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pn_widget_week_info" />
+        </receiver>
+
+    </application>
+</manifest>

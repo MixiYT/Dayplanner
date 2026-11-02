@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = ["core", "server"]
+exclude = ["app/src-tauri", "plugins/planner-native"]
+
+[profile.release]
+lto = true
+opt-level = "s"
+strip = true

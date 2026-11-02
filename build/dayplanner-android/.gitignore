@@ -1,0 +1,11 @@
+target/
+node_modules/
+app/src-tauri/gen/
+app/src-tauri/icons/
+leaderboard.json
+*.sqlite3
+*.sqlite3-*
+keys/
+dist/
+*.log
+keystore.properties

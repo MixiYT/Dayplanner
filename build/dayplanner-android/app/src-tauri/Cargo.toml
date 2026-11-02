@@ -1,0 +1,19 @@
+[package]
+name = "dayplanner"
+version = "0.3.0"
+edition = "2021"
+description = "Ежедневник: расписания, напоминания, достижения, рейтинг"
+
+[lib]
+name = "dayplanner_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-planner-native = { path = "../../plugins/planner-native" }
+planner-core = { path = "../../core" }
+serde_json = "1"
+chrono = "0.4"

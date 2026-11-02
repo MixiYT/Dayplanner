@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Напоминание</title>
+  <style>
+    :root { --accent: #6750a4; --on-accent: #fff; --font: "Segoe UI", "Roboto Flex", system-ui, sans-serif; }
+    * { box-sizing: border-box; margin: 0; }
+    html, body, #root { height: 100%; overflow: hidden; }
+    body { font-family: var(--font); color: #fff; user-select: none; -webkit-user-select: none; }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    .pop { height: 100%; display: flex; background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 55%, #000), color-mix(in srgb, var(--accent) 25%, #000)); }
+    .btn { border: 2px solid rgba(255, 255, 255, 0.55); background: transparent; color: #fff; border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 14px; }
+    .btn.primary { background: #fff; color: var(--accent-dark, #3b2a73); border-color: #fff; }
+    .btn:hover { filter: brightness(1.1); }
+    .icon { line-height: 1; }
+    .title { font-weight: 700; overflow-wrap: anywhere; }
+    .time { opacity: 0.85; }
+    .notes { opacity: 0.8; overflow-wrap: anywhere; }
+    .err { position: fixed; left: 8px; right: 8px; bottom: 8px; background: #b3261e; color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 13px; }
+
+    /* Маленькое уведомление */
+    .pop.notification { padding: 14px 16px; gap: 14px; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255, 255, 255, 0.25); }
+    .notification .head { display: flex; gap: 12px; align-items: flex-start; }
+    .notification .icon { font-size: 34px; }
+    .notification .title { font-size: 17px; }
+    .notification .time { font-size: 13px; }
+    .notification .notes { font-size: 13px; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .notification .actions { display: flex; gap: 8px; }
+    .notification .btn { padding: 7px 12px; font-size: 13px; }
+    .notification .close { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: #fff; font-size: 16px; opacity: 0.7; }
+
+    /* Будильник и на весь экран */
+    .pop.alarm, .pop.full_screen { flex-direction: column; align-items: center; justify-content: center; padding: 28px; gap: 8px; text-align: center; }
+    .alarm .icon, .full_screen .icon { font-size: 72px; }
+    .alarm .title, .full_screen .title { font-size: 28px; margin-top: 10px; }
+    .alarm .time, .full_screen .time { font-size: 20px; }
+    .alarm .notes, .full_screen .notes { font-size: 16px; margin-top: 8px; max-width: 520px; }
+    .full_screen .icon { font-size: 120px; }
+    .full_screen .title { font-size: 44px; }
+    .full_screen .time { font-size: 26px; }
+    .alarm .actions, .full_screen .actions { display: flex; flex-direction: column; gap: 10px; width: min(360px, 100%); margin-top: 18px; }
+    .alarm .btn, .full_screen .btn { padding: 12px 18px; font-size: 16px; }
+    .pulse { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 50% { transform: scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="alert.js"></script>
+</body>
+</html>

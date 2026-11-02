@@ -1,0 +1,41 @@
+# Сборки и артефакты
+/dist/
+/RustDnevnik.zip
+*.zip
+*.exe
+*.msi
+*.apk
+*.aab
+*.dll
+*.so
+**/target/
+**/node_modules/
+
+# Тайные ключи и секреты — не публиковать
+**/keys/
+**/app/src-tauri/gen/android/keystore.properties
+**/keystore.properties
+*.jks
+**/secret.py
+**/.dayplanner-private-key
+.env
+*.env
+
+# Tauri / Android / Gradle
+**/.tauri/
+**/app/src-tauri/gen/
+**/app/src-tauri/icons/
+**/plugins/planner-native/android/build/
+**/.gradle/
+
+# Базы, логи, кэш
+*.sqlite3
+*.sqlite3-*
+*.log
+__pycache__/
+
+# IDE и ОС
+.idea/
+.vscode/
+*.DS_Store
+Thumbs.db

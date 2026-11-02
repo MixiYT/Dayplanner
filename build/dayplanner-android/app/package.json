@@ -1,0 +1,18 @@
+{
+  "name": "dayplanner",
+  "private": true,
+  "version": "0.3.0",
+  "scripts": {
+    "tauri": "tauri",
+    "icons": "tauri icon app-icon.png",
+    "dev": "tauri dev",
+    "android:init": "tauri android init",
+    "android:dev": "tauri android dev",
+    "android:build": "tauri android build --apk",
+    "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File ../build-apk.ps1",
+    "ui": "npx --yes serve ui"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверка панели DayPlanner</title>
+<style>
+  body { margin: 20px; color: #e8e3ea; background: #17171a; font: 14px system-ui; }
+  button { padding: 10px 20px; cursor: pointer; }
+  #previews { display: flex; align-items: flex-start; gap: 20px; }
+  iframe { border: 1px solid #555; border-radius: 16px; flex: none; }
+  pre { white-space: pre-wrap; }
+</style>
+<h1>Панель навигации: Android и Windows</h1>
+<p>Проверяются темы, размеры, безопасные отступы, все пять вкладок и Android-мост (с подменой данных).</p>
+<button id="run">Запустить проверки</button>
+<button id="features">Проверить новые функции (демо)</button>
+<pre id="result">Готово к проверке</pre>
+<div id="previews"></div>
+<script>
+const THEMES = ['material', 'amoled', 'glass', 'simple', 'nord', 'mono'];
+const SIZES = [[320, 640], [360, 800], [393, 852], [412, 915], [900, 1200], [960, 432], [1000, 760], [1920, 1080]];
+const INSETS = [{ top: 0, right: 0, bottom: 0, left: 0 }, { top: 24, right: 0, bottom: 48, left: 0 }, { top: 0, right: 24, bottom: 24, left: 40 }];
+const nextFrame = (win) => new Promise(resolve => win.requestAnimationFrame(resolve));
+
+async function makePreview(platform, mockNative = false) {
+  const frame = document.createElement('iframe');
+  frame.title = platform;
+  frame.width = platform === 'pc' ? 1000 : 393;
+  frame.height = 852;
+  const ready = new Promise(resolve => frame.onload = resolve);
+  if (mockNative) {
+    const page = await (await fetch('/android/')).text();
+    const mock = `<base href="/android/"><script>
+      window.testInsets = {width:786,top:48,right:0,bottom:96,left:0};
+      window.__TAURI__ = {core:{invoke: async (name, data) => {
+        if (name === 'api') return demo.api(data.cmd, data.args, data.now);
+        return data.cmd === 'insets' ? window.testInsets : null;
+      }},event:{listen:()=>Promise.resolve(()=>{})}};
+    <\/script>`;
+    frame.srcdoc = page.replace('<head>', '<head>' + mock)
+      .replace(/href="(style|features)\.css"/g, 'href="/android/$1.css"')
+      .replace(/src="(bg|demo|features|collaboration|app)\.js"/g, 'src="/android/$1.js"');
+  } else frame.src = `/${platform}/`;
+  document.querySelector('#previews').append(frame);
+  await ready;
+  await frame.contentWindow.eval('boot()');
+  const style = frame.contentDocument.createElement('style');
+  style.textContent = '#bg { display: none; } *, *::before, *::after { transition: none !important; animation: none !important; }';
+  frame.contentDocument.head.append(style);
+  return frame;
+}
+
+async function runNavigationTests(platform = 'android') {
+  document.querySelector('#previews').replaceChildren();
+  const frame = await makePreview(platform);
+  const win = frame.contentWindow, doc = frame.contentDocument;
+  const failures = [];
+  let cases = 0;
+  const check = (ok, message, context) => { if (!ok) failures.push({ message, ...context }); };
+  await win.eval("S.tab = 'settings'; render()");
+  for (const [width, height] of SIZES) {
+    frame.width = width; frame.height = height;
+    await nextFrame(win);
+    for (const theme of THEMES) for (const scheme of ['light', 'dark']) for (const safe of INSETS) {
+      win.eval(`S.settings.theme = '${theme}'; S.settings.mode = '${scheme}'; applyTheme()`);
+      for (const [edge, value] of Object.entries(safe)) doc.documentElement.style.setProperty(`--safe-${edge}`, `${value}px`);
+      const nav = doc.querySelector('#nav'), view = doc.querySelector('#view');
+      const n = nav.getBoundingClientRect(), v = view.getBoundingClientRect();
+      const desktop = platform === 'pc' && width >= 900 && height >= 500;
+      const context = { platform, width, height, theme, scheme, safe };
+      check(n.left >= safe.left - 1 && n.right <= width - safe.right + 1 && n.top >= safe.top - 1 && n.bottom <= height - safe.bottom + 1, 'Панель выходит за безопасную область', context);
+      check(desktop ? n.right <= v.left + 1 : v.bottom <= n.top + 1, 'Панель перекрывает содержимое', context);
+      check(n.height <= (desktop ? 365 : 80), 'Панель растянута', context);
+      if (!desktop) check(Math.abs(n.bottom - (height - safe.bottom - 10)) <= 1, 'Двойной/потерянный нижний отступ', context);
+      const buttons = [...nav.querySelectorAll('button')];
+      check(buttons.length === 5, 'Не все вкладки доступны', context);
+      for (const b of buttons) {
+        const r = b.getBoundingClientRect(), icon = b.querySelector('svg,.ui-icon').getBoundingClientRect();
+        check(r.width >= 44 && r.height >= 44 && r.left >= n.left && r.right <= n.right && r.top >= n.top && r.bottom <= n.bottom, 'Кнопка обрезана/слишком мала', context);
+        check(Math.abs(icon.width - 24) < 1 && Math.abs(icon.height - 24) < 1, 'Размер активной иконки изменяется', context);
+      }
+      check(nav.scrollWidth <= nav.clientWidth + 1 && doc.documentElement.scrollWidth <= width + 1, 'Горизонтальное переполнение', context);
+      check(v.height > 100, 'Содержимое вытеснено панелью', context);
+      cases++;
+    }
+  }
+  frame.width = 393; frame.height = 852;
+  for (const edge of ['top', 'right', 'bottom', 'left']) doc.documentElement.style.setProperty(`--safe-${edge}`, '0px');
+  win.eval("S.settings.theme = 'glass'; S.settings.mode = 'light'; applyTheme()");
+  // Check navigation itself, including the long Settings label at the narrowest width.
+  for (let tab = 0; tab < 5; tab++) {
+    doc.querySelectorAll('#nav button')[tab].click();
+    await nextFrame(win);
+    check(doc.querySelectorAll('#nav button[aria-current="page"]').length === 1, 'Активная вкладка не уникальна', { platform, tab });
+  }
+  const result = { platform, cases, failures };
+  document.querySelector('#result').textContent = JSON.stringify(result, null, 2);
+  return result;
+}
+
+async function testNativeInsets() {
+  document.querySelector('#previews').replaceChildren();
+  const frame = await makePreview('android', true);
+  const win = frame.contentWindow, doc = frame.contentDocument;
+  const results = [];
+  const failures = [];
+  for (const insets of [{width:786, top:48, right:0, bottom:96, left:0}, {width:786, top:0, right:0, bottom:0, left:0}, {width:786, top:0, right:48, bottom:0, left:80}]) {
+    win.testInsets = insets;
+    await win.updatePlatformInsets();
+    const actual = Object.fromEntries(['top', 'right', 'bottom', 'left'].map(edge => [edge, parseFloat(doc.documentElement.style.getPropertyValue(`--safe-${edge}`))]));
+    for (const edge of ['top', 'right', 'bottom', 'left']) {
+      if (Math.abs(actual[edge] - insets[edge] / 2) > 0.01) failures.push({ edge, insets, actual });
+    }
+    results.push(actual);
+  }
+  return { cases: results.length, failures, results };
+}
+
+document.querySelector('#run').onclick = async () => {
+  const results = [];
+  for (const platform of ['android', 'pc']) results.push(await runNavigationTests(platform));
+  const native = await testNativeInsets();
+  document.querySelector('#result').textContent = JSON.stringify({ results, native }, null, 2);
+};
+</script>
+<script src="features.js"></script>
+<script>document.querySelector('#features').onclick = () => runFeatureTests().catch(e => document.querySelector('#result').textContent = String(e));</script>
+</html>
